@@ -5,14 +5,17 @@ var RpcClient = require('bitcoind-rpc');
 console.log("Running AutobahnJS " + autobahn.version);
 
 // setup crossbar router
-url = 'ws://127.0.0.1:8080/ws';
-realm = 'realm1';
+var url = 'ws://127.0.0.1:8080/ws';
+var realm = 'realm1';
 
 // setup bitcoind (localhost)
 var rpcusername = 'username'
 var rpcpassword = 'password'
 var rpcport = '8332'
 var host = '127.0.0.1'
+
+// name of your microservice on crossbar
+var appName = 'com.myapp.bitcoin'
 
 var connection = new autobahn.Connection({
     url: url,
@@ -24,7 +27,7 @@ connection.onopen = function (session, details) {
     console.log("session open!", details);
 
     function utcnow() {
-        console.log("Someone is calling com.myapp.bitcoin");
+        console.log("Someone is calling " + appName);
         now = new Date();
         return now.toISOString();
     }
@@ -90,7 +93,7 @@ connection.onopen = function (session, details) {
     }
 
     // register our function on crossbar.io
-    session.register('com.myapp.bitcoin', sendRPCrequest).then(
+    session.register(appName, sendRPCrequest).then(
         function (registration) {
             console.log("Procedure registered:", registration.id);
         },

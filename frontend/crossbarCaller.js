@@ -5,6 +5,9 @@ var connection, ul;
 var url = 'ws://127.0.0.1:8080/ws'
 var realm = 'realm1'
 
+// name of the registered microservice on crossbar
+var appName = 'com.myapp.bitcoin'
+
 $('body').terminal(
    //Interpreter
    function (command, term) {
@@ -29,7 +32,7 @@ $('body').terminal(
       if (connection && connection.isConnected) {
          // make sure command is supported 
          if (callspec[cmdsArr[0]]) {
-            connection.session.call('com.myapp.bitcoin', cmdsArr)
+            connection.session.call(appName, cmdsArr)
                .catch(err => {
                   term.error(JSON.stringify(err, null, 2))
                   // console.log("Can't connect to the microservice: ", err);
