@@ -18,7 +18,7 @@ $('body').terminal(
       }
       // disconnect from crossbar
       if (command === "exit") {
-         if (connection && connection.isConnected) {
+         if (connection && connection.isOpen && connection.session && connection.session.isOpen) {
             connection.close()
             term.error("Disconnected")
             return;
@@ -29,7 +29,7 @@ $('body').terminal(
       // console.log(command)
 
       // before we call rpc make sure we are connected
-      if (connection && connection.isConnected) {
+      if (connection && connection.isOpen && connection.session && connection.session.isOpen) {
          // make sure command is supported 
          if (callspec[cmdsArr[0]]) {
             connection.session.call(appName, cmdsArr)
@@ -57,7 +57,7 @@ $('body').terminal(
       }
    }, {
       // Options
-      greetings: "Welcome to Bitcoin RPC Terminal. \nPress 'start' to initiate connection to bitcoin crossbar client:",
+      greetings: "Welcome to Bitcoin RPC Terminal. \nPress 'start' to initiate connection to bitcoin crossbar server:",
       // prepare autocomplete
       onInit: function (term) {
          var wrapper = term.cmd().find('.cursor').wrap('<span/>').parent()
@@ -125,29 +125,46 @@ $('body').terminal(
 
 // connect to crossbar router
 var start = function (term) {
-   if (connection && connection.isConnected) {
+   if (connection && connection.isOpen && connection.session && connection.session.isOpen) {
       term.error("Already connected")
       return;
    }
-   term.echo('Connecting to crossbar client...')
+   term.echo('Connecting to crossbar server...')
    term.pause()
-   setTimeout(() => {
-      try {
-         connection = new autobahn.Connection({
-            url: url,
-            realm: realm
-         })
-         connection.open()
+   connection = new autobahn.Connection({
+      url: url,
+      realm: realm,
+   })
+   connection.open()
 
+   connection.onopen = function () {
+      term.resume()
+      term.echo("Successfully connected. \nTo disconnect type 'exit'.")
+      term.echo("Type 'help' to see a list of all available commands")
+   };
+
+   connection.onclose = function (reason, details) {
+      
+      // user must have typed "exit"
+      if(reason === "closed")
+         return
+      // console.log("reason:" + reason)
+      // console.log("details:" + JSON.stringify(details, null, 2))
+      term.resume()
+      term.error("Could not connect to : " + url)
+      // let's not auto reconnect
+      if (connection.isRetrying)
+         connection.close()
+   };
+
+   // if we can't connect to a crossbar server within 3 sec => throw timeout error
+   setTimeout(function () {
+      if (!connection.isOpen) {
          term.resume()
-         term.echo("Successfully connected to crossbar.io. \nTo disconnect type 'exit'.")
-         term.echo("Type 'help' to see a list of all available commands")
-      } catch (e) {
-         console.log(e)
-         term.resume()
-         term.error("Connection error:", e)
+         term.error("Connection timeout.")
+         connection.close()
       }
-   }, 100);
+   }, 3000);
 }
 
 // list of all commands
