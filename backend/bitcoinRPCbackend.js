@@ -46,8 +46,8 @@ connection.onopen = function (session, details) {
             protocol: 'http',
             user: rpcusername,
             pass: rpcpassword,
-            host: rpcport,
-            port: host,
+            host: host,
+            port: rpcport,
         };
         try {
             let res = await callRPC(command, config)
