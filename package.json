@@ -2,11 +2,11 @@
   "name": "bitcoin-crossbar-rpc",
   "version": "1.0.0",
   "description": "",
-  "main": "test.js",
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify ./crossbarCaller.js -o scripts/bundle.js && uglifyjs --compress --mangle -- scripts/bundle.js > scripts/bundle.min.js",
-    "start": "open index.html"
+    "build": "browserify ./frontend/crossbarCaller.js -o ./frontend/scripts/bundle.js && uglifyjs --compress --mangle -- ./frontend/scripts/bundle.js > ./frontend/scripts/bundle.min.js",
+    "start": "open ./frontend/index.html"
   },
   "author": "",
   "license": "ISC",
