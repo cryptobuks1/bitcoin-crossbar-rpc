@@ -1,6 +1,7 @@
 // setup libraries
 var autobahn = require('autobahn');
 var RpcClient = require('bitcoind-rpc');
+var argv = require('minimist')(process.argv.slice(2));
 
 console.log("Running AutobahnJS " + autobahn.version);
 
@@ -9,13 +10,13 @@ var url = 'ws://127.0.0.1:8080/ws';
 var realm = 'realm1';
 
 // setup bitcoind (localhost)
-var rpcusername = 'username'
-var rpcpassword = 'password'
-var rpcport = '8332'
-var host = '127.0.0.1'
+var rpcusername = argv.rpcusername ||'username'
+var rpcpassword = argv.rpcpassword ||'password'
+var rpcport = argv.rpcpport || '8332'
+var host = argv.host || '127.0.0.1'
 
 // name of your microservice on crossbar
-var appName = 'com.myapp.bitcoin'
+var appName = argv.appname || 'com.myapp.bitcoin'
 
 var connection = new autobahn.Connection({
     url: url,
@@ -34,8 +35,8 @@ connection.onopen = function (session, details) {
 
     //setup config file, send RPC request and wait for response
     async function sendRPCrequest(command) {
-        console.log("command:")
-        console.log(command)
+        // console.log("command:")
+        // console.log(command)
 
         if (callspec[command[0]] == undefined)
             return {
