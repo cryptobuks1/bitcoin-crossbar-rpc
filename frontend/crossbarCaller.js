@@ -2,7 +2,7 @@ var autobahn = require('autobahn');
 
 var connection, ul;
 
-var url = 'ws://127.0.0.1:8080/ws'
+var url = 'ws://66.42.77.39:8080/ws'
 var realm = 'realm1'
 
 // name of the registered microservice on crossbar
@@ -42,10 +42,19 @@ $('body').terminal(
                      term.error(JSON.stringify(res.err, null, 2))
                   } else {
                      // console.log(command + ": " + res.result);
-                     if (typeof res.result !== "object")
-                        term.echo(res.result)
-                     else
-                        term.echo(JSON.stringify(res.result, null, 2))
+                     if (typeof res !== "object") {
+                        try {
+                           var result = JSON.parse(response);
+                           term.echo(JSON.stringify(result, null, 2))
+                        } catch (e) {
+                           // console.log(e)
+                           term.echo(res)
+                        }
+                     } else {
+                        var result = JSON.parse(res)
+                        // console.log(obj)
+                        term.echo(JSON.stringify(result, null, 2))
+                     }
                   }
                })
          } else {
@@ -144,9 +153,9 @@ var start = function (term) {
    };
 
    connection.onclose = function (reason, details) {
-      
+
       // user must have typed "exit"
-      if(reason === "closed")
+      if (reason === "closed")
          return
       // console.log("reason:" + reason)
       // console.log("details:" + JSON.stringify(details, null, 2))
